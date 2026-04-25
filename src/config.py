@@ -61,6 +61,8 @@ class Ball:
     COLOR: str = "white"
     SHAPESIZE: tuple = (0.80, 0.80)  # (stretch_wid, stretch_len) scale factor of 20
     BASESIZE: int = 20
+    X_BOUNDS: tuple = (-265, 265)
+    Y_BOUNDS: tuple = (-275, 275)
     SPEED: int = 5
 
     @classmethod

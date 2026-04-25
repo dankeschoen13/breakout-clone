@@ -64,6 +64,9 @@ class GameView:
             font=Config.HUD.REG_FONT
         )
 
+        if player.lives == 0:
+            self.show_game_over()
+
 
     def draw_bricks(self, brick_manager: 'BrickManager') -> None:
         """
