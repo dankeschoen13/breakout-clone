@@ -1,7 +1,7 @@
-from .config import Config
-from .models import BrickManager, Player
+from .config import Config, Rules
+from .models import BrickManager, Player, Ball, Paddle
 from .view import GameView
 from .controller import GameController
 
 
-__all__ = ["Config", "GameController", "GameView", "BrickManager", "Player"]
+__all__ = ["Config", "Rules", "GameController", "GameView", "BrickManager", "Player", "Ball", "Paddle"]

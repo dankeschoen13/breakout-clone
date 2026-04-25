@@ -1,4 +1,4 @@
-from src import Config
+from src import Config, Rules
 
 
 class Player:
@@ -72,5 +72,63 @@ class BrickManager:
 
 class Paddle:
 
-    def __init__(self):
-        pass
+    def __init__(self, start_x: float, start_y: float) -> None:
+        self.x = start_x
+        self.y = start_y
+        self.speed = Config.Paddle.SPEED
+        self.x_bounds = Rules.paddle_x_limit()
+
+        self.is_moving_left = False
+        self.is_moving_right = False
+
+    def press_left(self) -> None:
+        self.is_moving_left = True
+
+    def release_left(self) -> None:
+        self.is_moving_left = False
+
+    def press_right(self) -> None:
+        self.is_moving_right = True
+
+    def release_right(self) -> None:
+        self.is_moving_right = False
+
+    def move(self) -> None:
+
+        if self.is_moving_left:
+            self.x -= self.speed
+        if self.is_moving_right:
+            self.x += self.speed
+
+        self.x = max(-self.x_bounds, min(self.x_bounds, self.x))
+
+
+class Ball:
+
+    def __init__(self, start_x: float, start_y: float):
+        self.x = start_x
+        self.y = start_y
+        self.x_move = 0.0
+        self.y_move = 0.0
+        self.in_play = False
+
+    def set_velocity(self, dx: float, dy: float):
+        self.x_move = dx
+        self.y_move = dy
+
+    def move(self) -> None:
+        self.x += self.x_move
+        self.y += self.y_move
+
+    def bounce_x(self) -> None:
+        self.x_move *= -1
+
+    def bounce_y(self) -> None:
+        self.y_move *= -1
+
+    def reset_position(self, x: float, y: float) -> None:
+        self.x = x
+        self.y = y
+        self.x_move = 0.0
+        self.y_move = 0.0
+        self.in_play = False

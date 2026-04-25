@@ -1,5 +1,5 @@
 from turtle import Turtle, Screen, _Screen
-from src import Config, BrickManager, Player
+from src import Config, BrickManager, Player, Ball, Paddle
 
 
 class GameView:
@@ -14,8 +14,9 @@ class GameView:
         
         self.brick_pen = self._create_brick_pen()
         self.hud_pen = self._create_hud_pen()
-        self.paddle = self._create_paddle()
-        self.ball = self._create_ball()
+        self.paddle_pen = self._create_paddle()
+        self.ball_pen = self._create_ball()
+
 
     def update_window(self) -> None:
         """
@@ -23,33 +24,16 @@ class GameView:
         """
         self.window.update()
 
+    def refresh_window(self, func, fps) -> None:
+
+        self.window.ontimer(func, int(1000 / fps))
+
 
     def hold_window(self) -> None:
         """
         Helper function to call Turtle's screen.mainloop() method
         """
         self.window.mainloop()
-
-
-    def draw_bricks(self, brick_manager: 'BrickManager') -> None:
-        """
-        Renders the current state of all active bricks onto the screen.
-
-        This method optimizes rendering by using the Turtle `.stamp()` technique
-        instead of instantiating multiple objects. It skips any bricks marked
-        as destroyed.
-
-        Args:
-            brick_manager (BrickManager): The data model containing the level's bricks.
-        """
-        self.brick_pen.clear()
-        self.brick_pen.penup()
-
-        for brick in brick_manager.bricks:
-            if not brick.is_destroyed:
-                self.brick_pen.goto(brick.x, brick.y)
-                self.brick_pen.color(brick.color)
-                self.brick_pen.stamp()
 
 
     def draw_hud(self, player: 'Player') -> None:
@@ -79,6 +63,47 @@ class GameView:
             align='right',
             font=Config.HUD.REG_FONT
         )
+
+
+    def draw_bricks(self, brick_manager: 'BrickManager') -> None:
+        """
+        Renders the current state of all active bricks onto the screen.
+
+        This method optimizes rendering by using the Turtle `.stamp()` technique
+        instead of instantiating multiple objects. It skips any bricks marked
+        as destroyed.
+
+        Args:
+            brick_manager (BrickManager): The data model containing the level's bricks.
+        """
+        self.brick_pen.clear()
+        self.brick_pen.penup()
+
+        for brick in brick_manager.bricks:
+            if not brick.is_destroyed:
+                self.brick_pen.goto(brick.x, brick.y)
+                self.brick_pen.color(brick.color)
+                self.brick_pen.stamp()
+
+
+    def draw_ball(self, ball: 'Ball') -> None:
+        """
+        This method renders the current state of the ball.
+
+        Args:
+            ball (Ball): The data model containing the level's ball.
+        """
+        self.ball_pen.goto(ball.x, ball.y)
+
+
+    def draw_paddle(self, paddle: 'Paddle') -> None:
+        """
+        This method renders the current state of the paddle.
+
+        Args:
+            paddle (Paddle): The data model containing the level's ball.
+        """
+        self.paddle_pen.goto(paddle.x, paddle.y)
 
 
     def show_game_over(self) -> None:
@@ -171,7 +196,6 @@ class GameView:
         paddle.resizemode('user')
         paddle.shapesize(*Config.Paddle.SHAPESIZE)
         paddle.color(Config.Paddle.COLOR)
-        paddle.setpos(*Config.Paddle.INIT_POS)
         return paddle
 
 
