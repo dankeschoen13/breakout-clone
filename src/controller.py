@@ -1,4 +1,5 @@
-from src import BrickManager, GameView
+from src import BrickManager, GameView, Player
+
 
 class GameController:
     """
@@ -18,6 +19,7 @@ class GameController:
         """
         self.view = GameView()
         self.bricks = BrickManager()
+        self.player = Player()
 
     def run(self) -> None:
         """
@@ -33,6 +35,7 @@ class GameController:
         game_is_on = True
         self.view.window_setup()
         self.view.draw_bricks(self.bricks)
+        self.view.draw_hud(self.player)
 
         while game_is_on:
             self.view.update_window()

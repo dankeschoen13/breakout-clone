@@ -21,7 +21,22 @@ class Bricks:
     ROW_SPACING: int = 25
     SHAPESIZE: tuple = (0.75, 3.50, 0)
 
+
+@dataclass(frozen=True)
+class Text:
+    REG_FONT: tuple[str, int, str] = ("Helvetica", 16, "normal")
+    REG_FONT_COL: str = "white"
+    SCORE_TXT: str = "SCORE: "
+    SCORE_POS: tuple = (-270, 310)
+    LIVES: int = 3
+    LIVES_TXT: str = "LIVES: "
+    LIVES_POS: tuple = (270, 310)
+    GAME_OVER_TXT: str = "GAME OVER!"
+    GAME_OVER_POS: tuple = (-5, 0)
+
+
 @dataclass
 class Config:
     Screen: Screen = Screen()
     Bricks: Bricks = Bricks()
+    Text: Text = Text()

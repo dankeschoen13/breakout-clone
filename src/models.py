@@ -1,4 +1,19 @@
+from socket import send_fds
+
 from src import Config
+
+
+class Player:
+
+    def __init__(self):
+        self.score = 0
+        self.lives = Config.Text.LIVES
+
+    def one_point(self):
+        self.score += 1
+
+    def ball_dies(self):
+        self.lives -= 1
 
 
 class Brick:
@@ -55,3 +70,7 @@ class BrickManager:
                 self.bricks.append(new_brick)
 
                 current_x += cell_width
+
+
+
+
