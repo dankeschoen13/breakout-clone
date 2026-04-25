@@ -1,5 +1,6 @@
-from turtle import Turtle, Screen
+from turtle import Turtle, Screen, _Screen
 from src import Config, BrickManager, Player
+
 
 class GameView:
 
@@ -8,36 +9,13 @@ class GameView:
         Constructor for the GameView class and its attributes. Initializes the Turtle
         Screen() and separate Turtle() instances for different UI elements.
         """
-        self.window = Screen()
-
-        self.border_pen = Turtle()
-        self.border_pen.hideturtle()
-        self.border_pen.speed(0)
-
-        self.brick_pen = Turtle(shape="square")
-        self.brick_pen.hideturtle()
-
-        self.text_pen = Turtle()
-        self.text_pen.hideturtle()
-        self.text_pen.penup()
-        self.text_pen.color(Config.Text.REG_FONT_COL)
-
-
-    def window_setup(self) -> None:
-        """
-        Sets up the main window's dimension, app title, background color, and calls
-        draw_border() to draw the border on the screen.
-        """
-        self.window.setup(
-            width=Config.Screen.WIDTH,
-            height=Config.Screen.HEIGHT
-        )
-        self.window.getcanvas().config(highlightthickness=0)
-        self.window.bgcolor(Config.Screen.BG_COLOR)
-        self.window.title(Config.Screen.TITLE)
-        self.window.tracer(0)
-        self.draw_border(*Config.Screen.BORDER_DIM)
-
+        self.window = self._create_screen()
+        self.border = self._create_border(*Config.Screen.BORDER_DIM)
+        
+        self.brick_pen = self._create_brick_pen()
+        self.hud_pen = self._create_hud_pen()
+        self.paddle = self._create_paddle()
+        self.ball = self._create_ball()
 
     def update_window(self) -> None:
         """
@@ -51,35 +29,6 @@ class GameView:
         Helper function to call Turtle's screen.mainloop() method
         """
         self.window.mainloop()
-
-
-    def draw_border(self, x1: int, y1: int, x2: int, y2: int) -> None:
-        """
-        Draws a rectangular boundary on the screen using the provided coordinates.
-
-        The method utilizes the dedicated `border_pen` to draw a continuous
-        line connecting the four corners defined by the (x1, y1) and (x2, y2) bounds.
-
-        Drawing starts in the lower left corner of the screen (x1, y1), then follows
-        counter-clockwise movement until it completes a rectangular boundary.
-
-        Args:
-            x1 (int): The X-coordinate of the first corner.
-            y1 (int): The Y-coordinate of the first corner.
-            x2 (int): The X-coordinate of the opposite corner.
-            y2 (int): The Y-coordinate of the opposite corner.
-        """
-        self.border_pen.pensize(Config.Screen.BORDER_THICKNESS)
-        self.border_pen.pencolor(Config.Screen.BORDER_COL)
-
-        self.border_pen.penup()
-        self.border_pen.goto(x1, y1)
-
-        self.border_pen.pendown()
-        self.border_pen.goto(x2, y1)
-        self.border_pen.goto(x2, y2)
-        self.border_pen.goto(x1, y2)
-        self.border_pen.goto(x1, y1)
 
 
     def draw_bricks(self, brick_manager: 'BrickManager') -> None:
@@ -96,8 +45,6 @@ class GameView:
         self.brick_pen.clear()
         self.brick_pen.penup()
 
-        self.brick_pen.shapesize(*Config.Bricks.SHAPESIZE)
-
         for brick in brick_manager.bricks:
             if not brick.is_destroyed:
                 self.brick_pen.goto(brick.x, brick.y)
@@ -113,34 +60,127 @@ class GameView:
             player (Player): The player object containing the score and lives.
 
         """
-        self.text_pen.clear()
+        self.hud_pen.clear()
 
         # Draw Score
-        self.text_pen.goto(*Config.Text.SCORE_POS)
-        self.text_pen.write(
-            arg=f"{Config.Text.SCORE_TXT} {player.score}",
+        self.hud_pen.goto(*Config.HUD.SCORE_POS)
+        self.hud_pen.write(
+            arg=f"{Config.HUD.SCORE_TXT} {player.score}",
             move=False,
             align='left',
-            font=Config.Text.REG_FONT
+            font=Config.HUD.REG_FONT
         )
 
         # Draw Lives
-        self.text_pen.goto(*Config.Text.LIVES_POS)
-        self.text_pen.write(
-            arg=f"{Config.Text.LIVES_TXT} {player.lives}",
+        self.hud_pen.goto(*Config.HUD.LIVES_POS)
+        self.hud_pen.write(
+            arg=f"{Config.HUD.LIVES_TXT} {player.lives}",
             move=False,
             align='right',
-            font=Config.Text.REG_FONT
+            font=Config.HUD.REG_FONT
         )
+
 
     def show_game_over(self) -> None:
         """
         Draws the final game over text. Called once by the Controller when game is over.
         """
-        self.text_pen.goto(*Config.Text.GAME_OVER_POS)
-        self.text_pen.write(
-            arg=Config.Text.GAME_OVER_TXT,
+        self.hud_pen.goto(*Config.HUD.GAME_OVER_POS)
+        self.hud_pen.write(
+            arg=Config.HUD.GAME_OVER_TXT,
             move=False,
             align='center',
-            font=Config.Text.REG_FONT
+            font=Config.HUD.REG_FONT
         )
+
+
+    @staticmethod
+    def _create_screen() -> _Screen:
+        """
+        Sets up the main window's dimension, app title, background color, and calls
+        draw_border() to draw the border on the screen.
+        """
+        screen = Screen()
+        screen.setup(
+            width=Config.Screen.WIDTH,
+            height=Config.Screen.HEIGHT
+        )
+        screen.getcanvas().config(highlightthickness=0)
+        screen.bgcolor(Config.Screen.BG_COLOR)
+        screen.title(Config.Screen.TITLE)
+        screen.tracer(0)
+        return screen
+
+
+    @staticmethod
+    def _create_border(x1: int, y1: int, x2: int, y2: int) -> Turtle:
+        """
+        Draws a rectangular boundary on the screen using the provided coordinates.
+
+        The method utilizes the dedicated `border_pen` to draw a continuous
+        line connecting the four corners defined by the (x1, y1) and (x2, y2) bounds.
+
+        Drawing starts in the lower left corner of the screen (x1, y1), then follows
+        counter-clockwise movement until it completes a rectangular boundary.
+
+        Args:
+            x1 (int): The X-coordinate of the first corner.
+            y1 (int): The Y-coordinate of the first corner.
+            x2 (int): The X-coordinate of the opposite corner.
+            y2 (int): The Y-coordinate of the opposite corner.
+        """
+        border_pen = Turtle()
+        border_pen.hideturtle()
+        border_pen.speed(0)
+        border_pen.pensize(Config.Screen.BORDER_THICKNESS)
+        border_pen.pencolor(Config.Screen.BORDER_COL)
+
+        border_pen.penup()
+        border_pen.goto(x1, y1)
+
+        border_pen.pendown()
+        border_pen.goto(x2, y1)
+        border_pen.goto(x2, y2)
+        border_pen.goto(x1, y2)
+        border_pen.goto(x1, y1)
+        return border_pen
+
+
+    @staticmethod
+    def _create_brick_pen() -> Turtle:
+        pen = Turtle(shape="square")
+        pen.hideturtle()
+        pen.shapesize(*Config.Bricks.SHAPESIZE)
+        return pen
+
+
+    @staticmethod
+    def _create_hud_pen() -> Turtle:
+        pen = Turtle()
+        pen.hideturtle()
+        pen.penup()
+        pen.color(Config.HUD.REG_FONT_COL)
+        return pen
+
+
+    @staticmethod
+    def _create_paddle() -> Turtle:
+        paddle = Turtle()
+        paddle.penup()
+        paddle.shape('square')
+        paddle.resizemode('user')
+        paddle.shapesize(*Config.Paddle.SHAPESIZE)
+        paddle.color(Config.Paddle.COLOR)
+        paddle.setpos(*Config.Paddle.INIT_POS)
+        return paddle
+
+
+    @staticmethod
+    def _create_ball() -> Turtle:
+        ball = Turtle()
+        ball.penup()
+        ball.shape('circle')
+        ball.resizemode('user')
+        ball.shapesize(*Config.Ball.SHAPESIZE)
+        ball.color(Config.Ball.COLOR)
+        return ball

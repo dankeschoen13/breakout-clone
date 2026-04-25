@@ -11,6 +11,16 @@ class Screen:
     BORDER_COL: str = "#787A91"
     BORDER_THICKNESS: int = 2
 
+@dataclass(frozen=True)
+class HUD:
+    REG_FONT: tuple[str, int, str] = ("Helvetica", 16, "normal")
+    REG_FONT_COL: str = "white"
+    SCORE_TXT: str = "SCORE: "
+    SCORE_POS: tuple = (-270, 310)
+    LIVES_TXT: str = "LIVES: "
+    LIVES_POS: tuple = (270, 310)
+    GAME_OVER_TXT: str = "GAME OVER!"
+    GAME_OVER_POS: tuple = (-5, 0)
 
 @dataclass(frozen=True)
 class Bricks:
@@ -21,22 +31,25 @@ class Bricks:
     ROW_SPACING: int = 25
     SHAPESIZE: tuple = (0.75, 3.50, 0)
 
+@dataclass(frozen=True)
+class Paddle:
+    SHAPESIZE: tuple = (0.60, 6)
+    BASESIZE: int = 20
+    COLOR: str = "#916BBF"
+    INIT_POS: tuple[int, int] = (0, -280)
 
 @dataclass(frozen=True)
-class Text:
-    REG_FONT: tuple[str, int, str] = ("Helvetica", 16, "normal")
-    REG_FONT_COL: str = "white"
-    SCORE_TXT: str = "SCORE: "
-    SCORE_POS: tuple = (-270, 310)
+class Ball:
     LIVES: int = 3
-    LIVES_TXT: str = "LIVES: "
-    LIVES_POS: tuple = (270, 310)
-    GAME_OVER_TXT: str = "GAME OVER!"
-    GAME_OVER_POS: tuple = (-5, 0)
-
+    COLOR: str = "white"
+    SHAPESIZE: tuple = (0.80, 0.80)  # (stretch_wid, stretch_len) scale factor of 20
+    BASESIZE: int = 20
+    SPEED: int = 5
 
 @dataclass
 class Config:
     Screen: Screen = Screen()
+    HUD: HUD = HUD()
     Bricks: Bricks = Bricks()
-    Text: Text = Text()
+    Paddle: Paddle = Paddle()
+    Ball: Ball = Ball()

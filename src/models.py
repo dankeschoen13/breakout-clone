@@ -1,5 +1,3 @@
-from socket import send_fds
-
 from src import Config
 
 
@@ -7,7 +5,7 @@ class Player:
 
     def __init__(self):
         self.score = 0
-        self.lives = Config.Text.LIVES
+        self.lives = Config.Ball.LIVES
 
     def one_point(self):
         self.score += 1
@@ -72,5 +70,7 @@ class BrickManager:
                 current_x += cell_width
 
 
+class Paddle:
 
-
+    def __init__(self):
+        pass

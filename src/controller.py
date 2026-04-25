@@ -1,4 +1,4 @@
-from src import BrickManager, GameView, Player
+from src import GameView, BrickManager, Player
 
 
 class GameController:
@@ -33,7 +33,6 @@ class GameController:
            automatic exit.
         """
         game_is_on = True
-        self.view.window_setup()
         self.view.draw_bricks(self.bricks)
         self.view.draw_hud(self.player)
 
