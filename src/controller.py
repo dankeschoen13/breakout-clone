@@ -89,7 +89,8 @@ class GameController:
         self.paddle.move()
 
         if self.ball.in_play:
-            self.ball.move()
+            if not self._check_bricks_collision():
+                self.ball.move()
 
             if self.ball.x > 265:
                 self.ball.x = 265
@@ -104,7 +105,6 @@ class GameController:
                 self.ball.bounce_y()
 
             self.check_paddle_collision()
-
         else:
             self.ball.x = self.paddle.x
 
@@ -141,3 +141,101 @@ class GameController:
 
         current_y_sign = self.ball.y_move if self.ball.y_move != 0 else 1.0
         self.ball.y_move = math.copysign(y_magnitude, current_y_sign)
+
+
+    def _check_bricks_collision(self) -> bool:
+        """
+        Detects collisions between the ball and bricks using the Slab Method (CCD).
+
+        Iterates through active bricks to calculate ray cast intersections,
+        preventing high-speed tunneling. Returns True if a collision was resolved.
+        """
+        if not self.ball.in_play:
+            return False
+
+        r = Config.Ball.radius()
+
+        ball_start_pos = (self.ball.x, self.ball.y)
+        ball_velocity = (self.ball.x_move, self.ball.y_move)
+
+        if ball_velocity[0] == 0 and ball_velocity[1] == 0:
+            return False
+
+        first_collision: dict[str, float | str | None] = {
+            "time": 1.0,
+            "brick": None,
+            "type": None
+        }
+
+        for brick in self.bricks.bricks:
+            if brick.is_destroyed:
+                continue
+
+            west_side = brick.x - Config.Bricks.half_width() - r
+            south_side = brick.y - Config.Bricks.half_height() - r
+            east_side = brick.x + Config.Bricks.half_width() + r
+            north_side = brick.y + Config.Bricks.half_height() + r
+
+            if ball_velocity[0] == 0:
+                if west_side <= ball_start_pos[0] <= east_side:
+                    stx, ltx = -math.inf, math.inf
+                else:
+                    continue
+            else:
+                time_to_hit_west = (west_side - ball_start_pos[0]) / ball_velocity[0]
+                time_to_hit_east = (east_side - ball_start_pos[0]) / ball_velocity[0]
+                stx = min(time_to_hit_west, time_to_hit_east)
+                ltx = max(time_to_hit_west, time_to_hit_east)
+
+            if ball_velocity[1] == 0:
+
+                if south_side <= ball_start_pos[1] <= north_side:
+                    sty, lty = -math.inf, math.inf
+                else:
+                    continue
+            else:
+                time_to_hit_south = (south_side - ball_start_pos[1]) / ball_velocity[1]
+                time_to_hit_north = (north_side - ball_start_pos[1]) / ball_velocity[1]
+                sty = min(time_to_hit_south, time_to_hit_north)
+                lty = max(time_to_hit_south, time_to_hit_north)
+
+            t_hit = max(stx, sty)
+            t_exit = min(ltx, lty)
+
+            if t_hit < t_exit and 0 < t_hit < first_collision["time"]:
+                first_collision["time"] = t_hit
+                first_collision["brick"] = brick
+                first_collision["type"] = "x" if stx > sty else "y"
+
+        # --- COLLISION RESOLUTION ---
+        hit_brick = first_collision["brick"]
+
+        if hit_brick is not None:
+            time = first_collision["time"]
+
+            # 1. Move ball to exact point of impact
+            self.ball.x = ball_start_pos[0] + (ball_velocity[0] * time)
+            self.ball.y = ball_start_pos[1] + (ball_velocity[1] * time)
+
+            # 2. Apply Bounce
+            if first_collision["type"] == "x":
+                self.ball.bounce_x()
+            else:
+                self.ball.bounce_y()
+
+            # 3. Calculate remaining movement after the bounce
+            remaining_time = 1.0 - time
+            self.ball.x += self.ball.x_move * remaining_time
+            self.ball.y += self.ball.y_move * remaining_time
+
+            # 4. State Update
+            hit_brick.is_destroyed = True
+            self.player.one_point()
+
+            # 5. Event-Driven Renders
+            self.view.draw_bricks(self.bricks)
+            self.view.draw_hud(self.player)
+
+            return True
+
+        return False

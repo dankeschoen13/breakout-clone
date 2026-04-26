@@ -80,7 +80,6 @@ class GameView:
             brick_manager (BrickManager): The data model containing the level's bricks.
         """
         self.brick_pen.clear()
-        self.brick_pen.penup()
 
         for brick in brick_manager.bricks:
             if not brick.is_destroyed:
@@ -141,6 +140,22 @@ class GameView:
 
 
     @staticmethod
+    def _create_base_pen():
+        """
+        Master factory for View rendering tools.
+
+        Initializes a Turtle object and applies the standard performance
+        boilerplate (hidden, pen lifted, maximum animation speed) required
+        by all UI elements in the game loop.
+        """
+        pen = Turtle()
+        pen.hideturtle()
+        pen.penup()
+        pen.speed(0)
+        return pen
+
+
+    @staticmethod
     def _create_border(x1: int, y1: int, x2: int, y2: int) -> Turtle:
         """
         Draws a rectangular boundary on the screen using the provided coordinates.
@@ -157,46 +172,57 @@ class GameView:
             x2 (int): The X-coordinate of the opposite corner.
             y2 (int): The Y-coordinate of the opposite corner.
         """
-        border_pen = Turtle()
-        border_pen.hideturtle()
-        border_pen.speed(0)
-        border_pen.pensize(Config.Screen.BORDER_THICKNESS)
-        border_pen.pencolor(Config.Screen.BORDER_COL)
+        pen = GameView._create_base_pen()
+        pen.pensize(Config.Screen.BORDER_THICKNESS)
+        pen.pencolor(Config.Screen.BORDER_COL)
 
-        border_pen.penup()
-        border_pen.goto(x1, y1)
-
-        border_pen.pendown()
-        border_pen.goto(x2, y1)
-        border_pen.goto(x2, y2)
-        border_pen.goto(x1, y2)
-        border_pen.goto(x1, y1)
-        return border_pen
+        pen.goto(x1, y1)
+        pen.pendown()
+        pen.goto(x2, y1)
+        pen.goto(x2, y2)
+        pen.goto(x1, y2)
+        pen.goto(x1, y1)
+        return pen
 
 
     @staticmethod
     def _create_brick_pen() -> Turtle:
-        pen = Turtle(shape="square")
-        pen.hideturtle()
+        """
+        Helper function to create a pen for drawing bricks on screen.
+
+        Returns:
+            Turtle: Turtle object
+        """
+        pen = GameView._create_base_pen()
+        pen.shape('square')
         pen.shapesize(*Config.Bricks.SHAPESIZE)
         return pen
 
 
     @staticmethod
     def _create_hud_pen() -> Turtle:
-        pen = Turtle()
-        pen.hideturtle()
-        pen.penup()
+        """
+        Helper function to create a pen for drawing HUD on screen.
+
+        Returns:
+            Turtle: Turtle object
+        """
+        pen = GameView._create_base_pen()
         pen.color(Config.HUD.REG_FONT_COL)
         return pen
 
 
     @staticmethod
     def _create_paddle() -> Turtle:
+        """
+        Helper function to create a pen for drawing the paddle on screen.
+
+        Returns:
+            Turtle: Turtle object
+        """
         paddle = Turtle()
         paddle.penup()
         paddle.shape('square')
-        paddle.resizemode('user')
         paddle.shapesize(*Config.Paddle.SHAPESIZE)
         paddle.color(Config.Paddle.COLOR)
         return paddle
@@ -204,10 +230,15 @@ class GameView:
 
     @staticmethod
     def _create_ball() -> Turtle:
+        """
+        Helper function to create a pen for drawing bricks on screen.
+
+        Returns:
+            Turtle: Turtle object
+        """
         ball = Turtle()
         ball.penup()
         ball.shape('circle')
-        ball.resizemode('user')
         ball.shapesize(*Config.Ball.SHAPESIZE)
         ball.color(Config.Ball.COLOR)
         return ball

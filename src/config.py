@@ -30,6 +30,23 @@ class Bricks:
     Y_BOUNDS: tuple = (280, 0)
     ROW_SPACING: int = 25
     SHAPESIZE: tuple = (0.75, 3.50, 0)
+    BASESIZE: int = 20
+
+    @classmethod
+    def width(cls) -> float:
+        return cls.SHAPESIZE[1] * cls.BASESIZE
+
+    @classmethod
+    def half_width(cls) -> float:
+        return cls.width() / 2
+
+    @classmethod
+    def height(cls) -> float:
+        return cls.SHAPESIZE[0] * cls.BASESIZE
+
+    @classmethod
+    def half_height(cls) -> float:
+        return cls.height() / 2
 
 @dataclass(frozen=True)
 class Paddle:
