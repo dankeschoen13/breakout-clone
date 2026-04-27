@@ -1,5 +1,6 @@
 from src import GameController
 
+
 def main():
     breakout = GameController()
     breakout.run()

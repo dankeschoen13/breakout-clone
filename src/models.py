@@ -7,10 +7,10 @@ class Player:
         self.score = 0
         self.lives = Config.Ball.LIVES
 
-    def one_point(self):
+    def one_point(self) -> None:
         self.score += 1
 
-    def ball_dies(self):
+    def ball_dies(self) -> None:
         self.lives -= 1
 
 
@@ -71,8 +71,20 @@ class BrickManager:
 
 
 class Paddle:
+    """
+    Pure data model representing the player's paddle.
 
+    Manages the mathematical coordinates, speed constraints, and current
+    movement state based on active inputs. It does not handle any rendering.
+    """
     def __init__(self, start_x: float, start_y: float) -> None:
+        """
+        Initializes the paddle's starting position, speed, and movement boundaries.
+
+        Args:
+            start_x (float): The initial X coordinate.
+            start_y (float): The initial Y coordinate.
+        """
         self.x = start_x
         self.y = start_y
         self.speed = Config.Paddle.SPEED
@@ -82,19 +94,28 @@ class Paddle:
         self.is_moving_right = False
 
     def press_left(self) -> None:
+        """Sets the state flag to indicate leftward movement."""
         self.is_moving_left = True
 
     def release_left(self) -> None:
+        """Clears the state flag to halt leftward movement."""
         self.is_moving_left = False
 
     def press_right(self) -> None:
+        """Sets the state flag to indicate rightward movement."""
         self.is_moving_right = True
 
     def release_right(self) -> None:
+        """Clears the state flag to halt rightward movement."""
         self.is_moving_right = False
 
     def move(self) -> None:
+        """
+        Calculates the new X position based on active movement flags.
 
+        Automatically clamps the final X coordinate to ensure the paddle
+        never exceeds the defined screen boundaries.
+        """
         if self.is_moving_left:
             self.x -= self.speed
         if self.is_moving_right:
@@ -104,29 +125,57 @@ class Paddle:
 
 
 class Ball:
+    """
+    Pure data model representing the physics and state of the ball.
 
+    Manages 2D spatial coordinates, velocity vectors, and active play state.
+    """
     def __init__(self, start_x: float, start_y: float):
+        """
+        Initializes the ball at a specific coordinate with zero initial velocity.
+
+        Args:
+            start_x (float): The initial X coordinate.
+            start_y (float): The initial Y coordinate.
+        """
         self.x = start_x
         self.y = start_y
         self.x_move = 0.0
         self.y_move = 0.0
         self.in_play = False
 
-    def set_velocity(self, dx: float, dy: float):
+    def set_velocity(self, dx: float, dy: float)  -> None:
+        """
+        Assigns the specific horizontal and vertical velocity components.
+
+        Args:
+            dx (float): The delta X per frame.
+            dy (float): The delta Y per frame.
+        """
         self.x_move = dx
         self.y_move = dy
 
     def move(self) -> None:
+        """Applies the current velocity vectors to the ball's coordinates."""
         self.x += self.x_move
         self.y += self.y_move
 
     def bounce_x(self) -> None:
+        """Reverses the horizontal velocity to simulate a vertical wall strike."""
         self.x_move *= -1
 
     def bounce_y(self) -> None:
+        """Reverses the vertical velocity to simulate a horizontal ceiling/floor strike."""
         self.y_move *= -1
 
     def reset_position(self, x: float, y: float) -> None:
+        """
+        Halts the ball's momentum and returns it to a specific coordinate.
+
+        Args:
+            x (float): The target X coordinate to reset to.
+            y (float): The target Y coordinate to reset to.
+        """
         self.x = x
         self.y = y
         self.x_move = 0.0

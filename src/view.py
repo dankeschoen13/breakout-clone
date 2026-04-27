@@ -10,12 +10,13 @@ class GameView:
         Screen() and separate Turtle() instances for different UI elements.
         """
         self.window = self._create_screen()
-        self.border = self._create_border(*Config.Screen.BORDER_DIM)
-        
+
+        self.border_pen = self._create_border(*Config.Screen.BORDER_DIM)
         self.brick_pen = self._create_brick_pen()
         self.hud_pen = self._create_hud_pen()
-        self.paddle_pen = self._create_paddle()
-        self.ball_pen = self._create_ball()
+
+        self.paddle_sprite = self._create_paddle()
+        self.ball_sprite = self._create_ball()
 
 
     def update_window(self) -> None:
@@ -27,7 +28,6 @@ class GameView:
     def refresh_window(self, func, fps) -> None:
 
         self.window.ontimer(func, int(1000 / fps))
-
 
     def hold_window(self) -> None:
         """
@@ -67,7 +67,6 @@ class GameView:
         if player.lives == 0:
             self.show_game_over()
 
-
     def draw_bricks(self, brick_manager: 'BrickManager') -> None:
         """
         Renders the current state of all active bricks onto the screen.
@@ -87,26 +86,23 @@ class GameView:
                 self.brick_pen.color(brick.color)
                 self.brick_pen.stamp()
 
-
-    def draw_ball(self, ball: 'Ball') -> None:
+    def render_ball(self, ball: 'Ball') -> None:
         """
         This method renders the current state of the ball.
 
         Args:
             ball (Ball): The data model containing the level's ball.
         """
-        self.ball_pen.goto(ball.x, ball.y)
+        self.ball_sprite.goto(ball.x, ball.y)
 
-
-    def draw_paddle(self, paddle: 'Paddle') -> None:
+    def render_paddle(self, paddle: 'Paddle') -> None:
         """
         This method renders the current state of the paddle.
 
         Args:
             paddle (Paddle): The data model containing the level's ball.
         """
-        self.paddle_pen.goto(paddle.x, paddle.y)
-
+        self.paddle_sprite.goto(paddle.x, paddle.y)
 
     def show_game_over(self) -> None:
         """
@@ -138,9 +134,8 @@ class GameView:
         screen.tracer(0)
         return screen
 
-
     @staticmethod
-    def _create_base_pen():
+    def _create_base_pen()  -> Turtle:
         """
         Master factory for View rendering tools.
 
@@ -153,7 +148,6 @@ class GameView:
         pen.penup()
         pen.speed(0)
         return pen
-
 
     @staticmethod
     def _create_border(x1: int, y1: int, x2: int, y2: int) -> Turtle:
@@ -184,7 +178,6 @@ class GameView:
         pen.goto(x1, y1)
         return pen
 
-
     @staticmethod
     def _create_brick_pen() -> Turtle:
         """
@@ -198,7 +191,6 @@ class GameView:
         pen.shapesize(*Config.Bricks.SHAPESIZE)
         return pen
 
-
     @staticmethod
     def _create_hud_pen() -> Turtle:
         """
@@ -211,11 +203,10 @@ class GameView:
         pen.color(Config.HUD.REG_FONT_COL)
         return pen
 
-
     @staticmethod
     def _create_paddle() -> Turtle:
         """
-        Helper function to create a pen for drawing the paddle on screen.
+        Helper function to create a paddle sprite on screen.
 
         Returns:
             Turtle: Turtle object
@@ -227,11 +218,10 @@ class GameView:
         paddle.color(Config.Paddle.COLOR)
         return paddle
 
-
     @staticmethod
     def _create_ball() -> Turtle:
         """
-        Helper function to create a pen for drawing bricks on screen.
+        Helper function to create a ball sprite on screen.
 
         Returns:
             Turtle: Turtle object
