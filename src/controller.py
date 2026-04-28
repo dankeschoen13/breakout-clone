@@ -1,4 +1,4 @@
-from src import GameView, BrickManager, Player, Ball, Paddle, Rules, Config, Brick
+from src import GameView, BrickManager, Player, Ball, Paddle, Rules, Config, Brick, SoundManager
 import math
 
 
@@ -18,6 +18,7 @@ class GameController:
         Sets up the primary View and Model instances required to run the game.
         """
         self.view = GameView()
+        self.audio = SoundManager()
         self.bricks = BrickManager()
         self.player = Player()
         self.paddle = Paddle(*Config.Paddle.INIT_POS)
@@ -48,10 +49,12 @@ class GameController:
             if self.ball.x < Config.Ball.X_BOUNDS[0]:
                 self.ball.x = Config.Ball.X_BOUNDS[0]
                 self.ball.bounce_x()
+                self.audio.play_wall()
 
             elif self.ball.x > Config.Ball.X_BOUNDS[1]:
                 self.ball.x = Config.Ball.X_BOUNDS[1]
                 self.ball.bounce_x()
+                self.audio.play_wall()
 
             if self.ball.y > Config.Ball.Y_BOUNDS[1]:
                 self.ball.y = Config.Ball.Y_BOUNDS[1]
@@ -200,7 +203,7 @@ class GameController:
             t_hit = max(stx, sty)
             t_exit = min(ltx, lty)
 
-            # 5. Check if the hit is valid. A valid hit must happen before any exit
+            # 5. Check if the hit is valid. A valid hit must happen before calculated exits
             # and within the current frame.
             if t_hit < t_exit and 0 < t_hit < hit_time:
                 print(f"Time of hit:{t_hit}. Chosen from STX:{stx} STY:{sty}")
@@ -237,6 +240,8 @@ class GameController:
         self.ball.y += self.ball.y_move * remaining_time
 
         hit_brick.is_destroyed = True
+
+        self.audio.play_brick()
         self.player.one_point()
 
         self.view.draw_bricks(self.bricks)
@@ -264,6 +269,7 @@ class GameController:
             self.ball.bounce_y()
             current_speed = math.hypot(self.ball.x_move, self.ball.y_move)
             self._apply_deflection(speed=current_speed)
+            self.audio.play_paddle()
 
         elif self.ball.y < Config.Screen.BORDER_DIM[1] + Config.Ball.radius():
             self.ball.reset_position(*Config.Ball.init_pos())
